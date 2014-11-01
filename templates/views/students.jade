@@ -1,0 +1,22 @@
+extends ../layouts/default
+
+block content
+	.page-content: .container 
+		if students.length
+			.tile: table.table.table-striped
+				col(width='25%')
+				thead.panel-heading
+					tr
+						th Name
+						th Total
+						th Partial
+						th Score
+				tbody
+					each student in students
+						tr
+							td= student.name.initials
+							td= student.totalFullTranslations
+							td= student.totalPartialTranslations
+							td= student.score
+		else
+			h3.text-muted There are no students yet.
