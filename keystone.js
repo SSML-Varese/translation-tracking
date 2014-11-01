@@ -11,8 +11,8 @@ var keystone = require('keystone');
 
 keystone.init({
 
-	'name': 'KeystoneJS',
-	'brand': 'KeystoneJS',
+	'name': 'Translations',
+	'brand': 'Translations',
 
 	'less': 'public',
 
