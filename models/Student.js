@@ -27,6 +27,10 @@ Student.schema.virtual('name.initials').get(function() {
   return this.name.first.charAt(0) + this.name.last.charAt(0);
 });
 
+Student.schema.virtual('totalTranslations').get(function() {
+  return this.totalPartialTranslations + this.totalFullTranslations;
+});
+
 Student.schema.virtual('score').get(function() {
   if (this.totalPartialTranslations) return this.totalFullTranslations + this.totalPartialTranslations * 0.5;
 
