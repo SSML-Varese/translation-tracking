@@ -12,9 +12,10 @@ var Student = new keystone.List('Student', {
 
 Student.add({
   name: { type: Types.Name, required: true },
+  matricola: { type: Types.Number, required: true, initial: true, format: false },
 
-	totalFullTranslations: { type: Number, noedit: true },
-  totalPartialTranslations: { type: Number, noedit: true },
+	totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
+  totalPartialTranslations: { type: Number, noedit: true, label: "Shared Translations" },
 });
 
 /**
@@ -28,7 +29,16 @@ Student.schema.virtual('name.initials').get(function() {
 });
 
 Student.schema.virtual('totalTranslations').get(function() {
-  return this.totalPartialTranslations + this.totalFullTranslations;
+  if ((this.totalPartialTranslations) && (this.totalFullTranslations))
+    return this.totalPartialTranslations + this.totalFullTranslations;
+
+  if (this.totalPartialTranslations)
+    return this.totalPartialTranslations;
+
+  if (this.totalFullTranslations)
+    return this.totalFullTranslations;
+
+  return 0;
 });
 
 Student.schema.virtual('score').get(function() {
@@ -74,5 +84,5 @@ Student.schema.methods.refreshTranslations = function(callback) {
 }
 
 Student.defaultSort = '+name.last'; // doesn't work
-Student.defaultColumns = 'name, name.initials, totalFullTranslations, totalPartialTranslations';
+Student.defaultColumns = 'name, matricola, totalFullTranslations, totalPartialTranslations';
 Student.register();

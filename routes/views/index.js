@@ -9,7 +9,7 @@ exports = module.exports = function(req, res) {
 
 	locals.section = 'members';
 
-	view.query('students', Student.model.find().sort('name.last'));
+	view.query('students', Student.model.find().sort('matricola'));
 
 	view.render('students');
 }
