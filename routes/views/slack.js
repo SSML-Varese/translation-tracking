@@ -19,7 +19,7 @@ exports = module.exports = function(req, res) {
 
       var arr = hook.text.split(" ");
 
-      if (arr[0].toLowerCase() == "translation") {
+      if ((arr[0].toLowerCase() == "translation") || (arr[0].toLowerCase() == "shared")) {
 
         var name = arr.slice(2).join(" ");
         console.log(name);
@@ -27,6 +27,7 @@ exports = module.exports = function(req, res) {
         Student.model.findOne()
           .where('name.first', name)
           .exec().then( function(student) {
+
             if (!student) {
               res.json({
                 text: "I'm sorry " + hook.user_name + ", but I couldn't find any student named " + name,
@@ -38,7 +39,7 @@ exports = module.exports = function(req, res) {
               var newTranslation = new Translation.model({
                 author: student,
                 when: Date.now(),
-                partial: false,
+                partial: (arr[0].toLowerCase() == "translation") ? false : true,
               });
 
               newTranslation.save(function(err) {
