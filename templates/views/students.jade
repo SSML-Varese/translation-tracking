@@ -1,19 +1,24 @@
 extends ../layouts/default
 
 block content
+	.container: .jumbotron
+		img(src='/images/logo.svg', width='160')
+		h1 Welcome
+		p This is the website for students that are taking part in the VareseNews translation stage. It shows you how many translations you have done so far.
+		p If you think that there are any mistakes please get in touch.
 	.page-content: .container 
 		if students.length
 			.tile: table.table.table-striped
 				col(width='25%')
 				thead.panel-heading
 					tr
-						th Name
+						th Matricola
 						th Total
 						th Score
 				tbody
 					each student in students
 						tr
-							td= student.name.initials
+							td= student.matricola
 							td= student.totalTranslations
 							td= student.score
 		else
