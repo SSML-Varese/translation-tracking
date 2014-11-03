@@ -7,13 +7,13 @@ block content
 				col(width='25%')
 				thead.panel-heading
 					tr
-						th Name
+						th Matricola
 						th Total
 						th Score
 				tbody
 					each student in students
 						tr
-							td= student.name.initials
+							td= student.matricola
 							td= student.totalTranslations
 							td= student.score
 		else
