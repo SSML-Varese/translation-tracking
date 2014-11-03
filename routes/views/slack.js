@@ -1,8 +1,9 @@
-var keystone = require('keystone');
+var keystone = require('keystone'),
+    Student = keystone.list('Student'),
+    Translation = keystone.list('Translation');
+
 var Slack = require('node-slack');
 var slack = new Slack(process.env.DOMAIN,process.env.TOKEN);
-
-var Student = keystone.list('Student');
 
 exports = module.exports = function(req, res) {
 
@@ -18,9 +19,9 @@ exports = module.exports = function(req, res) {
 
       var arr = hook.text.split(" ");
 
-      if (arr[0].toLowerCase() == "translated") {
+      if (arr[0].toLowerCase() == "translation") {
 
-        var name = arr.slice(2);
+        var name = arr.slice(2).join(" ");
         console.log(name);
 
         Student.model.findOne()
@@ -28,18 +29,43 @@ exports = module.exports = function(req, res) {
           .exec().then( function(student) {
             if (!student) {
               res.json({
-                text: "I'm sorry, but I couldn't find a student named " + name,
+                text: "I'm sorry " + hook.user_name + ", but I couldn't find any student named " + name,
                 username: "Bot"
               });
             } else {
               console.log("student found");
-              res.json({
-                text: "I'm happy to hear that " + student.name.first + " " + student.name.last + " (" + student.matricola + ") translated something",
-                username: "Bot"
+
+              var newTranslation = new Translation.model({
+                author: student,
+                when: Date.now(),
+                partial: false,
               });
+
+              newTranslation.save(function(err) {
+                if (err) {
+                  console.log("couldn't save");
+                  console.log(err);
+                  res.json({
+                    text: "I'm sorry " + hook.user_name + ", but something went wrong: " + err,
+                    username: 'Bot'
+                  });
+                } else {
+                  res.json({
+                    text: "I'm happy " + hook.user_name + ", to hear that " + student.name.first + " " + student.name.last + " (" + student.matricola + ") translated an article",
+                    username: "Bot"
+                  });
+                }
+              });
+
             }
           }, function(err) {
-            console.log(err);
+            if (err) {
+              console.log(err);
+              res.json({
+                text: "I'm sorry " + hook.user_name + ", but something went wrong: " + err,
+                username: 'Bot'
+              });
+            }
           });
       } else {
         res.json({
