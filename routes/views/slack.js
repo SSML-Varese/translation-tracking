@@ -19,60 +19,111 @@ exports = module.exports = function(req, res) {
 
       var arr = hook.text.split(" ");
 
-      if ((arr[0].toLowerCase() == "translation") || (arr[0].toLowerCase() == "shared")) {
+      if ((arr[0].toLowerCase() == "translation") || (arr[0].toLowerCase() == "partial")) {
 
-        var name = arr.slice(2).join(" ");
-        console.log(name);
+        var identifier = arr.slice(2).join(" ");
 
-        Student.model.findOne()
-          .where('name.first', name)
-          .exec().then( function(student) {
+        var isName = true;
+        var query = 'name.first';
 
-            if (!student) {
+        if (/^[1-9]\d*$/.test(identifier)) {
+          isName = false;
+          query = 'matricola';
+        }
+
+        Student.model.find()
+          .where(query, identifier)
+          .limit(5)
+          .exec().then( function(students) {
+
+            if (students.length == 0) {
+
               res.json({
-                text: "I'm sorry " + hook.user_name + ", but I couldn't find any student named " + name,
-                username: "Bot"
+                text: "I'm sorry " + hook.user_name +
+                  ", but I couldn't find any student" +
+                  ((isName == true) ? " named " : " with matricola ") +
+                  identifier
               });
-            } else {
-              console.log("student found");
+
+            } else if (students.length > 1) {
+
+              //console.log("Multiple students were found.");
+              //console.log(students);
+
+              var responseText = "I'm sorry " + hook.user_name + ", but I found multiple students, please specify one of the following matricola: ";
+
+              var arrayLength = students.length;
+              for (var i = 0; i < arrayLength; i++) {
+                responseText = responseText + students[i].name.first + " " + students[i].name.last + " (" + students[i].matricola + "), ";
+              }
+
+              res.json({
+                text: responseText
+              });
+
+            } else { // there is only one student
+
+              //console.log("A student was found (" + students[0].matricola + ")");
 
               var newTranslation = new Translation.model({
-                author: student,
+                author: students[0],
                 when: Date.now(),
-                partial: (arr[0].toLowerCase() == "translation") ? false : true,
+                partial: ((arr[0].toLowerCase() == "translation") ? false : true),
               });
-
-              newTranslation.save(function(err) {
-                if (err) {
-                  console.log("couldn't save");
-                  console.log(err);
-                  res.json({
-                    text: "I'm sorry " + hook.user_name + ", but something went wrong: " + err,
-                    username: 'Bot'
-                  });
-                } else {
-                  res.json({
-                    text: "I'm happy " + hook.user_name + ", to hear that " + student.name.first + " " + student.name.last + " (" + student.matricola + ") translated an article",
-                    username: "Bot"
-                  });
-                }
-              });
-
             }
+
+            newTranslation.save(function(err) {
+
+              if (err) {
+
+                console.log("Couldn't save");
+                console.log(err);
+
+                res.json({
+                  text: "I'm sorry " + hook.user_name +
+                    ", but something went wrong: " + err
+                });
+
+              } else {
+
+                res.json({
+                  text: "I'm happy " + hook.user_name +
+                    ", to hear that " + students[0].name.first + " " +
+                    students[0].name.last + " (" + students[0].matricola +
+                    ") translated an article" +
+                    ((newTranslation.partial == true) ? " with someone else" : "")
+                });
+
+              }
+            });
+
           }, function(err) {
+
             if (err) {
+
               console.log(err);
+
               res.json({
-                text: "I'm sorry " + hook.user_name + ", but something went wrong: " + err,
-                username: 'Bot'
+                text: "I'm sorry " + hook.user_name +
+                  ", but something went wrong: " + err
               });
+
+            } else {
+
+              res.json({
+                text: "I'm sorry " + hook.user_name +
+                ", but something might have gone wrong."
+              });
+
             }
+
           });
       } else {
+
         res.json({
-          text: "I don't know what you are talking about, " + hook.user_name,
-          username: 'Bot'
+          text: "I don't know what you are talking about, " + hook.user_name
         });
+
       }
     });
 
