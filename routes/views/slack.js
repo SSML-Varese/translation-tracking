@@ -3,7 +3,7 @@ var keystone = require('keystone'),
     Translation = keystone.list('Translation');
 
 var Slack = require('node-slack');
-var slack = new Slack(process.env.DOMAIN,process.env.TOKEN);
+var slack = new Slack(process.env.SLACK_DOMAIN,process.env.SLACK_TOKEN);
 
 exports = module.exports = function(req, res) {
 
