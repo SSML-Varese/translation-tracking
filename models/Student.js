@@ -22,7 +22,9 @@ Student.add({
  * Relationships
  */
 
-Student.relationship({ ref: 'Translation', path: 'author' });
+Student.relationship({ path: 'translations', ref: 'Translation', refPath: 'author',  });
+
+
 
 Student.schema.virtual('name.initials').get(function() {
   return this.name.first.charAt(0) + this.name.last.charAt(0);
