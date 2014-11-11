@@ -18,7 +18,10 @@ block content
 				tbody
 					each student in students
 						tr
-							td= student.matricola
+							if student.isTeacher
+								td Untranslated
+							else
+								td= student.matricola
 							td= student.totalTranslations
 							td= student.score
 		else
