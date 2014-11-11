@@ -12,7 +12,7 @@ var Student = new keystone.List('Student', {
 
 Student.add({
   name: { type: Types.Name, required: true },
-  matricola: { type: Types.Number, required: true, initial: true, format: false },
+  matricola: { type: Types.Number, required: true, initial: true, format: false , note: "99999 for untranslated"},
 
 	totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
   totalPartialTranslations: { type: Number, noedit: true, label: "Shared Translations" },
@@ -22,7 +22,9 @@ Student.add({
  * Relationships
  */
 
-Student.relationship({ ref: 'Translation', path: 'author' });
+Student.relationship({ path: 'translations', ref: 'Translation', refPath: 'author',  });
+
+
 
 Student.schema.virtual('name.initials').get(function() {
   return this.name.first.charAt(0) + this.name.last.charAt(0);
@@ -49,6 +51,9 @@ Student.schema.virtual('score').get(function() {
   return 0;
 });
 
+Student.schema.virtual('isTeacher').get(function() {
+  return this.matricola > 99999;
+});
 
 // Methods
 // ------------------------------
