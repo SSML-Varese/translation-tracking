@@ -52,7 +52,7 @@ Student.schema.virtual('score').get(function() {
 });
 
 Student.schema.virtual('isTeacher').get(function() {
-  return this.matricola > 99999;
+  return this.matricola == 99999;
 });
 
 // Methods
