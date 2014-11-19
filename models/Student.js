@@ -1,4 +1,5 @@
 var keystone = require('keystone'),
+	async = require('async'),
   Types = keystone.Field.Types;
 
 /**
@@ -13,10 +14,67 @@ var Student = new keystone.List('Student', {
 Student.add({
   name: { type: Types.Name, required: true },
   matricola: { type: Types.Number, required: true, initial: true, format: false , note: "99999 for untranslated"},
-
-	totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
+}, 'Meta', {
+	translationCount: { type: Number, default: 0, noedit: true },
+  totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
   totalPartialTranslations: { type: Number, noedit: true, label: "Shared Translations" },
+  lastTranslation: { type: Types.Date, noedit: true },
 });
+
+
+/**
+	Pre-save
+	=============
+*/
+
+Student.schema.pre('save', function(next) {
+
+	var student = this;
+
+	async.parallel([
+
+		function(done) {
+
+			keystone.list('Translation').model.count({ author: student.id }).exec(function(err, count) {
+
+				if (err) {
+					console.error('===== Error counting user translations =====');
+					console.error(err);
+					return done();
+				}
+
+				student.translationCount = count;
+
+				return done();
+
+			});
+
+		},
+
+		function(done) {
+
+			keystone.list('Translation').model.findOne({ author: student.id }).sort('-when').exec(function(err, translation) {
+
+				if (err) {
+					console.error("===== Error setting user last translation date =====");
+					console.error(err);
+					return done();
+				}
+
+				if (!translation) return done();
+
+				student.lastTranslation = translation.when;
+
+				return done();
+
+			});
+
+		}
+
+	], next);
+
+});
+
 
 /**
  * Relationships
@@ -88,6 +146,6 @@ Student.schema.methods.refreshTranslations = function(callback) {
 
 }
 
-Student.defaultColumns = 'name, matricola, totalFullTranslations, totalPartialTranslations';
 Student.defaultSort = 'name.last';
+Student.defaultColumns = 'name, matricola, translationCount, lastTranslation';
 Student.register();
