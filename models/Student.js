@@ -88,6 +88,6 @@ Student.schema.methods.refreshTranslations = function(callback) {
 
 }
 
-Student.defaultSort = '+name.last'; // doesn't work
 Student.defaultColumns = 'name, matricola, totalFullTranslations, totalPartialTranslations';
+Student.defaultSort = 'name.last';
 Student.register();
