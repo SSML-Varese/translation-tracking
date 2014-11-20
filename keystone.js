@@ -27,6 +27,7 @@ keystone.init({
 	'session': true,
 	'auth': true,
 	'user model': 'User',
+	'cookie secret': process.env.COOKIE_SECRET || 'translation tracker',
 
 	'session store': 'mongo'
 
