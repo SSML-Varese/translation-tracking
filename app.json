@@ -1,6 +1,6 @@
 {
-  "name": "KeystoneJS Starter",
-  "description": "A basic KeystoneJS website with a blog, image gallery and contact form.",
+  "name": "Translation Tracker",
+  "description": "A student tracking app based on the starter KeystoneJS website.",
   "keywords": [
     "keystone",
     "keystonejs",
@@ -18,10 +18,6 @@
   "logo": "http://keystonejs.com/images/logo-128.png",
   "env" : {
     "NODE_ENV": "production",
-    "COOKIE_SECRET": {
-      "description": "Secret for signing cookies",
-      "generator": "secret"
-    },
     "EMAIL_HOSTNAME": {
       "description": "Canonical Hostname for images and links in emails",
       "value": "",
