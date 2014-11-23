@@ -14,7 +14,7 @@ block content
 					tr
 						th Matricola
 						th Total
-						th Score
+						th Last Translation
 				tbody
 					each student in students
 						tr
@@ -23,6 +23,6 @@ block content
 							else
 								td= student.matricola
 							td= student.translationCount
-							td= student.score
+							td= student.lastTranslation ? moment(student.lastTranslation).format("DD/MM/YYYY") : ""
 		else
 			h3.text-muted There are no students yet.
