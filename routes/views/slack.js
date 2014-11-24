@@ -24,15 +24,23 @@ exports = module.exports = function(req, res) {
         var identifier = arr.slice(2).join(" ");
 
         var isName = true;
-        var query = 'name.first';
+
+        var query = { $or: [{"name.first": identifier}, {"name.last": identifier}] };
+
+        if (/\s/.test(identifier)) {
+          var parts = identifier.split(" ");
+          var lastName = parts.pop();
+          var firstName = parts.join(" ");
+
+          query = {$and: [{'name.first': firstName}, {'name.last': lastName}] };
+        }
 
         if (/^[1-9]\d*$/.test(identifier)) {
           isName = false;
-          query = 'matricola';
+          query = { "matricola": identifier };
         }
 
-        Student.model.find()
-          .where(query, identifier)
+        Student.model.find(query)
           .limit(5)
           .exec().then( function(students) {
 
@@ -50,7 +58,7 @@ exports = module.exports = function(req, res) {
               //console.log("Multiple students were found.");
               //console.log(students);
 
-              var responseText = "I'm sorry " + hook.user_name + ", but I found multiple students, please specify one of the following matricola: ";
+              var responseText = hook.user_name + ", can you be more specific please and try again with the full name or matricola: ";
 
               var arrayLength = students.length;
               for (var i = 0; i < arrayLength; i++) {
@@ -62,9 +70,7 @@ exports = module.exports = function(req, res) {
               });
 
             } else { // there is only one student
-
               //console.log("A student was found (" + students[0].matricola + ")");
-
               var newTranslation = new Translation.model({
                 author: students[0],
                 when: Date.now(),
@@ -87,8 +93,8 @@ exports = module.exports = function(req, res) {
               } else {
 
                 res.json({
-                  text: "I'm happy " + hook.user_name +
-                    ", to hear that " + students[0].name.first + " " +
+                  text: "Thanks " + hook.user_name +
+                    ", I have noted down that " + students[0].name.first + " " +
                     students[0].name.last + " (" + students[0].matricola +
                     ") translated an article" +
                     ((newTranslation.partial == true) ? " with someone else" : "")
