@@ -23,6 +23,8 @@ exports = module.exports = function(req, res) {
 
         var identifier = arr.slice(2).join(" ");
 
+        identifier = identifier.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+      
         var isName = true;
 
         var query = { $or: [{"name.first": identifier}, {"name.last": identifier}] };
