@@ -1,11 +1,11 @@
 {
   "name": "translations",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "private": true,
   "dependencies": {
     "async": "~0.9.0",
     "dotenv": "0.4.0",
-    "keystone": "~0.2.40",
+    "keystone": "~0.3.0",
     "node-slack": "0.0.5",
     "underscore": "~1.7.0",
     "connect-mongo": "~0.4.1",
