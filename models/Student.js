@@ -13,7 +13,10 @@ var Student = new keystone.List('Student', {
 
 Student.add({
   name: { type: Types.Name, required: true },
-  matricola: { type: Types.Number, required: true, initial: true, format: false , note: "99999 for untranslated"},
+  matricola: { type: Types.Number, required: true, initial: true, format: false },
+}, 'Permissions', {
+	canTranslateArticles: { type: Types.Boolean, default: true, index: true },
+	canEditArticles: { type: Types.Boolean, default: false, index: true, initial: true },
 }, 'Meta', {
 	translationCount: { type: Number, default: 0, noedit: true },
   totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
