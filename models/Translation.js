@@ -1,4 +1,7 @@
 var keystone = require('keystone'),
+  async = require('async'),
+  _ = require('underscore'),
+  util = require('util'),
   Types = keystone.Field.Types;
 
 /**
@@ -8,13 +11,16 @@ var keystone = require('keystone'),
 
 var Translation = new keystone.List('Translation', {
   track: true,
+  drilldown: "authors"
 });
 
 Translation.add({
   when: { type: Types.Date, default: Date.now, initial: true },
-  author: { type: Types.Relationship, ref: 'Student', initial: true, index: true  },
-
-	partial: { type: Types.Boolean, default: false, index: true, initial: true },
+  author: { type: Types.Relationship, ref: 'Student', hidden: true  },
+  authors: { type: Types.Relationship, ref: 'Student', initial: true, index: true, many: true },
+}, 'Meta', {
+  partial: { type: Types.Boolean, default: false, hidden: true },
+  multipleAuthors: { type: Types.Boolean, noedit: true },
 });
 
 /**
@@ -22,13 +28,78 @@ Translation.add({
  * =====
  */
 
+Translation.schema.post('init', function() {
+    this._original = this.toObject();
+} );
+
 Translation.schema.post('save', function() {
-	keystone.list('Student').model.findById(this.author, function(err, student) {
-		if (student) student.refreshTranslations();
-	});
+  var arr1 = _.pluck(this._original.authors, "id");
+  var arr2 = _.pluck(this.authors, "id");
+  var diff = _.difference(arr1, arr2);
+
+  var results = _.filter(this._original.authors, function(obj) { return diff.indexOf(obj.id) >= 0; });
+
+  //debugger;
+
+	keystone.list('Student').model.find().where('_id').in(this.authors).exec(
+    function(err, students) {
+
+      async.each(students,
+        function(student, _next) {
+          //console.log("Post save -> student: " + student);
+
+          student.refreshTranslations();
+          _next();
+		    }, function(err) {
+          if (err) {
+            console.error('===== Error updating translation author  =====');
+          }
+		    }
+      );
+    }
+  );
+
+  keystone.list('Student').model.find().where('_id').in(results).exec(
+    function(err, students) {
+
+      async.each(students,
+        function(student, _next) {
+          //console.log("Post save -> student: " + student);
+
+          student.refreshTranslations();
+          _next();
+        }, function(err) {
+          if (err) {
+            console.error('===== Error updating previous translation author  =====');
+          }
+        }
+      );
+    }
+  );
+
 });
+
+Translation.schema.pre('save', function(next) {
+  var translation = this;
+
+  async.parallel([
+
+    function(done) {
+      console.log("Translation has " + translation.authors.length + " author(s).")
+      if (translation.authors.length > 1) {
+        translation.multipleAuthors = true
+      } else {
+        translation.multipleAuthors = false
+      }
+
+      return done();
+    }
+
+  ], next);
+});
+
 Translation.schema.post('remove', function() {
-	keystone.list('Student').model.findById(this.author, function(err, student) {
+	keystone.list('Student').model.findById(this.authors, function(err, student) {
 		if (student) student.refreshTranslations();
 	});
 })
@@ -39,5 +110,5 @@ Translation.schema.post('remove', function() {
  */
 
 Translation.defaultSort = '-when';
-Translation.defaultColumns = 'when, fullCount, partial, author';
+Translation.defaultColumns = 'when, authors';
 Translation.register();

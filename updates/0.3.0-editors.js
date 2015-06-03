@@ -18,4 +18,18 @@ exports = module.exports = function(done) {
 		});
 	});
 
+	keystone.list('Translation').model.find().exec(function(err, translations) {
+		async.each(translations, function(translation, doneTranslation) {
+
+			translation.set({
+				multipleAuthors: translation.partial, // this doesn't appear to work though, because of 'noedit'
+        authors: [translation.author]
+			}).save(function(err) {
+				return doneTranslation();
+			});
+		}, function(err) {
+			return done();
+		});
+	});
+
 };
