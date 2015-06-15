@@ -13,7 +13,10 @@ var Student = new keystone.List('Student', {
 
 Student.add({
   name: { type: Types.Name, required: true },
-  matricola: { type: Types.Number, required: true, initial: true, format: false , note: "99999 for untranslated"},
+  matricola: { type: Types.Number, required: true, initial: true, format: false },
+}, 'Permissions', {
+	canTranslateArticles: { type: Types.Boolean, default: true, index: true },
+	canEditArticles: { type: Types.Boolean, default: false, index: true, initial: true },
 }, 'Meta', {
 	translationCount: { type: Number, default: 0, noedit: true },
   totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
@@ -35,7 +38,7 @@ Student.schema.pre('save', function(next) {
 
 		function(done) {
 
-			keystone.list('Translation').model.count({ author: student.id }).where('partial', false).exec(function(err, count) {
+			keystone.list('Translation').model.count({ authors: student.id }).where('multipleAuthors', false).exec(function(err, count) {
 
 				if (err) {
 					console.error('===== Error counting full translations =====');
@@ -53,7 +56,7 @@ Student.schema.pre('save', function(next) {
 
 		function(done) {
 
-			keystone.list('Translation').model.count({ author: student.id }).where('partial', true).exec(function(err, count) {
+			keystone.list('Translation').model.count({ authors: student.id }).where('multipleAuthors', true).exec(function(err, count) {
 
 				if (err) {
 					console.error('===== Error counting partial translations =====');
@@ -71,7 +74,7 @@ Student.schema.pre('save', function(next) {
 
 		function(done) {
 
-			keystone.list('Translation').model.count({ author: student.id }).exec(function(err, count) {
+			keystone.list('Translation').model.count({ authors: student.id }).exec(function(err, count) {
 
 				if (err) {
 					console.error('===== Error counting user translations =====');
@@ -89,7 +92,7 @@ Student.schema.pre('save', function(next) {
 
 		function(done) {
 
-			keystone.list('Translation').model.findOne({ author: student.id }).sort('-when').exec(function(err, translation) {
+			keystone.list('Translation').model.findOne().where('authors').in([student.id]).sort('-when').exec(function(err, translation) {
 
 				if (err) {
 					console.error("===== Error setting user last translation date =====");
@@ -116,7 +119,7 @@ Student.schema.pre('save', function(next) {
  * Relationships
  */
 
-Student.relationship({ path: 'translations', ref: 'Translation', refPath: 'author',  });
+Student.relationship({ path: 'translations', ref: 'Translation', refPath: 'authors',  });
 
 
 
@@ -130,10 +133,6 @@ Student.schema.virtual('score').get(function() {
   if (this.totalFullTranslations) return this.totalFullTranslations;
 
   return 0;
-});
-
-Student.schema.virtual('isTeacher').get(function() {
-  return this.matricola == 99999;
 });
 
 // Methods

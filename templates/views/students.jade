@@ -17,12 +17,10 @@ block content
 						th Last Translation
 				tbody
 					each student in students
-						tr
-							if student.isTeacher
-								td Untranslated
-							else
+						if student.canTranslateArticles
+							tr
 								td= student.matricola
-							td= student.translationCount
-							td= student.lastTranslation ? moment(student.lastTranslation).format("DD/MM/YYYY") : ""
+								td= student.translationCount
+								td= student.lastTranslation ? moment(student.lastTranslation).format("DD/MM/YYYY") : ""
 		else
 			h3.text-muted There is no information to show yet.
