@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2015-06-15
+### Fixed
+- New translation was crashing in callbacks
+
+### Changed
+- Editor can be chosen for a translation
 
 ## [0.3.0] - 2015-06-15
 ### Changed
