@@ -33,11 +33,18 @@ Translation.schema.post('init', function() {
 } );
 
 Translation.schema.post('save', function() {
-  var arr1 = _.pluck(this._original.authors, "id");
-  var arr2 = _.pluck(this.authors, "id");
-  var diff = _.difference(arr1, arr2);
+  var prevAuthors = [];
 
-  var results = _.filter(this._original.authors, function(obj) { return diff.indexOf(obj.id) >= 0; });
+  if (this._original != undefined) {
+    //console.log("Comparing translation to previous version.")
+    var arr1 = _.pluck(this._original.authors, "id");
+    var arr2 = _.pluck(this.authors, "id");
+    var diff = _.difference(arr1, arr2);
+
+    prevAuthors = _.filter(this._original.authors, function(obj) { return diff.indexOf(obj.id) >= 0; });
+
+    //console.log("Translation had " + prevAuthors.length + " author(s) previously.")
+  }
 
   //debugger;
 
@@ -59,23 +66,25 @@ Translation.schema.post('save', function() {
     }
   );
 
-  keystone.list('Student').model.find().where('_id').in(results).exec(
-    function(err, students) {
+  if (prevAuthors.length > 0) {
+    keystone.list('Student').model.find().where('_id').in(prevAuthors).exec(
+      function(err, students) {
 
-      async.each(students,
-        function(student, _next) {
-          //console.log("Post save -> student: " + student);
+        async.each(students,
+          function(student, _next) {
+            //console.log("Post save -> student: " + student);
 
-          student.refreshTranslations();
-          _next();
-        }, function(err) {
-          if (err) {
-            console.error('===== Error updating previous translation author  =====');
+            student.refreshTranslations();
+            _next();
+          }, function(err) {
+            if (err) {
+              console.error('===== Error updating previous translation author  =====');
+            }
           }
-        }
-      );
-    }
-  );
+        );
+      }
+    );
+  }
 
 });
 
@@ -85,7 +94,7 @@ Translation.schema.pre('save', function(next) {
   async.parallel([
 
     function(done) {
-      console.log("Translation has " + translation.authors.length + " author(s).")
+      //console.log("Translation has " + translation.authors.length + " author(s).")
       if (translation.authors.length > 1) {
         translation.multipleAuthors = true
       } else {
