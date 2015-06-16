@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.3.2] - 2015-06-16
+### Added
+- translations can have a title (collapsed)
+
+### Changed
+- .csv export doesn't include 'old' author and partial flag
+- editor can be added to translation (collapsed)
+
+
 ## [0.3.1] - 2015-06-15
 ### Fixed
 - New translation was crashing in callbacks
