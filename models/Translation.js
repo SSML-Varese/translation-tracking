@@ -15,10 +15,11 @@ var Translation = new keystone.List('Translation', {
 });
 
 Translation.add({
+  title: { type: Types.Text, collapse: true },
   when: { type: Types.Date, default: Date.now, initial: true },
   author: { type: Types.Relationship, ref: 'Student', hidden: true  },
   authors: { type: Types.Relationship, ref: 'Student', initial: true, index: true, many: true },
-  editor: { type: Types.Relationship, ref: 'Student', filters: { canEditArticles: true }}
+  editor: { type: Types.Relationship, ref: 'Student', filters: { canEditArticles: true }, collapse: true }
 }, 'Meta', {
   partial: { type: Types.Boolean, default: false, hidden: true },
   multipleAuthors: { type: Types.Boolean, noedit: true },
