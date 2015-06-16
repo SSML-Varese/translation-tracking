@@ -114,6 +114,27 @@ Translation.schema.post('remove', function() {
 	});
 })
 
+
+Translation.schema.methods.toCSV = function(row, callback) {
+
+  // we don't need the previously used fields
+  delete row.author;
+  delete row.partial;
+
+  callback(null, row);
+
+  /*if (rtn.editor != undefined) {
+    rtn.editor_id = rtn.editor.key;
+  }
+
+  this.populate('authors', function() {
+      rtn.author_ids = translation.authors.map(function(i) { return i.key });
+      callback(null, rtn);
+  });*/
+
+};
+
+
 /**
  * Registration
  * ============
