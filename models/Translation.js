@@ -19,7 +19,9 @@ Translation.add({
   when: { type: Types.Date, default: Date.now, initial: true },
   author: { type: Types.Relationship, ref: 'Student', hidden: true  },
   authors: { type: Types.Relationship, ref: 'Student', initial: true, index: true, many: true },
-  editor: { type: Types.Relationship, ref: 'Student', filters: { canEditArticles: true }, collapse: true }
+  editor: { type: Types.Relationship, ref: 'Student', filters: { canEditArticles: true }, collapse: true },
+  articleUrl: { type: Types.Url, collapse: true },
+  translationUrl: { type: Types.Url, collapse: true },
 }, 'Meta', {
   partial: { type: Types.Boolean, default: false, hidden: true },
   multipleAuthors: { type: Types.Boolean, noedit: true },
