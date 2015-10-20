@@ -22,6 +22,7 @@ Student.add({
   totalFullTranslations: { type: Number, noedit: true, label: "Full Translations" },
   totalPartialTranslations: { type: Number, noedit: true, label: "Shared Translations" },
   lastTranslation: { type: Types.Date, noedit: true },
+	editedCount: { type: Number, default: 0, noedit: true },
 });
 
 
@@ -83,6 +84,24 @@ Student.schema.pre('save', function(next) {
 				}
 
 				student.translationCount = count;
+
+				return done();
+
+			});
+
+		},
+
+		function(done) {
+
+			keystone.list('Translation').model.count({ editor: student.id }).exec(function(err, count) {
+
+				if (err) {
+					console.error('===== Error counting user edits =====');
+					console.error(err);
+					return done();
+				}
+
+				student.editedCount = count;
 
 				return done();
 
