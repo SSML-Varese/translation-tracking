@@ -90,6 +90,24 @@ Translation.schema.post('save', function() {
     );
   }
 
+  keystone.list('Student').model.find().where('_id', this.editor).exec(
+    function(err, editors) {
+
+      async.each(editors,
+        function(editor, _next) {
+          //console.log("Post save -> editor: " + editor);
+
+          editor.refreshTranslations();
+          _next();
+        }, function(err) {
+          if (err) {
+            console.error('===== Error updating translation editor  =====');
+          }
+        }
+      );
+    }
+  );
+
 });
 
 Translation.schema.pre('save', function(next) {
